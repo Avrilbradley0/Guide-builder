@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>제작가이드 HTML 빌더</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}
+    .app{max-width:1580px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
+    h1{margin:0 0 6px;font-size:26px;letter-spacing:-.03em}
+    p{margin:0;color:#6b7280;font-size:14px}
+    .actions,.row{display:flex;gap:8px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:390px minmax(500px,1fr) 560px;gap:16px;align-items:start}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;box-shadow:0 8px 28px rgba(15,23,42,.05)}
+    .card h2{margin:0 0 14px;font-size:17px;letter-spacing:-.02em}
+    .field{margin-bottom:14px}
+    .field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800;color:#374151}
+    input,textarea{width:100%;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font-size:14px;outline:none;background:#fff;font-family:inherit}
+    textarea{min-height:150px;resize:vertical;line-height:1.5}
+    input:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(147,197,253,.25)}
+    .btn{border:1px solid #d9dee7;background:#fff;color:#111827;border-radius:10px;padding:10px 13px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08)}
+    .btn.primary{background:#111827;color:#fff;border-color:#111827}
+    .btn.blue{background:#4da3ff;color:#fff;border-color:#4da3ff}
+    .btn.green{background:#24cf7f;color:#fff;border-color:#24cf7f}
+    .btn.purple{background:#7c3aed;color:#fff;border-color:#7c3aed}
+    .btn.red{color:#ef4444;border-color:#fecaca}
+    .btn.small{padding:7px 9px;font-size:12px;border-radius:8px}
+    .hint{margin-top:7px;font-size:12px;color:#6b7280;line-height:1.45}
+    .stepBox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:12px;font-size:13px;color:#374151;line-height:1.6;margin-bottom:14px}
+    .stepBox strong{color:#111827}
+    .pasteBox{min-height:210px;border:2px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:16px;outline:none;transition:.15s;color:#475569;overflow:auto}
+    .pasteBox:focus{border-color:#4da3ff;background:#eef6ff}
+    .pasteBox.empty::before{content:"여기에 기존 제작가이드 페이지를 복사해서 붙여넣기\A\A1) 기존 제작가이드 페이지 열기\A2) 본문 영역 또는 전체 선택 후 Ctrl+C\A3) 이 박스 클릭 후 Ctrl+V\A\A이미지 URL이 자동 추출됩니다.";white-space:pre-line;color:#64748b;font-size:14px;line-height:1.55}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+    .stat{border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fafafa;text-align:center}
+    .stat strong{display:block;font-size:18px;margin-bottom:2px}
+    .stat span{font-size:12px;color:#6b7280}
+    .imageList{display:flex;flex-direction:column;gap:10px;min-height:160px}
+    .emptyList{border:1px dashed #d1d5db;border-radius:12px;padding:28px;color:#6b7280;text-align:center;font-size:13px;background:#fafafa}
+    .item{display:grid;grid-template-columns:86px 1fr;gap:12px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fff;cursor:grab}
+    .item.dragging{opacity:.45}
+    .thumb{width:86px;height:86px;object-fit:cover;border-radius:10px;border:1px solid #eef2f7;background:#f8fafc}
+    .url{font-size:12px;color:#334155;word-break:break-all;line-height:1.35;max-height:48px;overflow:hidden}
+    .choice,.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+    .chip{border:1px solid #d9dee7;background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}
+    .chip.single.active{background:#eef6ff;border-color:#4da3ff;color:#1665b8}
+    .chip.spot.active{background:#ecfdf4;border-color:#24cf7f;color:#087a49}
+    .chip.both.active{background:#f5f3ff;border-color:#a78bfa;color:#6d28d9}
+    .chip.none.active{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+    .caseTabs{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin-bottom:12px}
+    .caseTab{border:1px solid #d9dee7;border-radius:10px;background:#fff;padding:11px;font-weight:900;cursor:pointer}
+    .caseTab.active-single{background:#eef6ff;border-color:#4da3ff;color:#1665b8}
+    .caseTab.active-spot{background:#ecfdf4;border-color:#24cf7f;color:#087a49}
+    .caseTab.active-both{background:#f5f3ff;border-color:#a78bfa;color:#6d28d9}
+    .previewShell{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;max-height:610px;overflow-y:auto;overflow-x:hidden}
+    .previewTop{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;background:#f8fafc;position:sticky;top:0;z-index:5}
+    .previewTop span{font-size:13px;color:#6b7280}
+    #preview{padding:24px 12px;min-width:0;width:100%;overflow:hidden}
+    .code{min-height:280px;font-family:Consolas,Monaco,monospace;font-size:12px;white-space:pre}
+    .toast{position:fixed;right:24px;bottom:24px;background:#111827;color:#fff;padding:12px 15px;border-radius:12px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transform:translateY(10px);transition:.18s;z-index:99}
+    .toast.show{opacity:1;transform:translateY(0)}
+    @media(max-width:1280px){.grid{grid-template-columns:1fr}#preview{min-width:0}.top{display:block}.actions{justify-content:flex-start;margin-top:12px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div>
+        <h1>제작가이드 HTML 빌더</h1>
+        <p>기존 제작가이드 복사 → 이미지 자동 추출 → 단색/별색/공통 지정 → 3가지 코드 개별 복사</p>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="downloadJson()">작업 저장(JSON)</button>
+        <label class="btn" for="jsonInput">작업 불러오기</label>
+        <input id="jsonInput" type="file" accept="application/json" hidden />
+        <button class="btn red" onclick="resetAll()">전체 초기화</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1. 붙여넣기</h2>
+        <div class="stepBox">
+          <strong>사용 순서</strong><br>
+          기존 제작가이드 페이지에서 이미지 영역 복사 → 아래 박스 클릭 → Ctrl+V → 이미지 자동 추출
+        </div>
+
+        <div id="pasteBox" class="pasteBox empty" contenteditable="true"></div>
+        <div class="hint">페이지 전체를 복사해도 되고, 이미지 영역만 복사해도 됩니다.</div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary" onclick="extractFromPasteBox()">붙여넣은 내용에서 이미지 추출</button>
+          <button class="btn" onclick="clearPasteBox()">붙여넣기 박스 비우기</button>
+        </div>
+
+        <h2 style="margin-top:24px;">2. 기본 설정</h2>
+        <div class="field">
+          <label>제품명</label>
+          <input id="productName" type="text" value="자유형 투명아크릴 하트체인(라미)" oninput="renderAll()" />
+        </div>
+        <div class="field">
+          <label>툴팁 이미지 URL - 단색</label>
+          <input id="singleTooltip" type="text" value="https://huskb2bstorage.blob.core.windows.net/shopicus/dev_1/guide/test/단색_툴팁.png" oninput="renderAll()" />
+        </div>
+        <div class="field">
+          <label>툴팁 이미지 URL - 별색</label>
+          <input id="spotTooltip" type="text" value="https://huskb2bstorage.blob.core.windows.net/shopicus/dev_1/guide/test/별색_툴팁.png" oninput="renderAll()" />
+        </div>
+        <div class="field">
+          <label>이미지 최대 너비(px)</label>
+          <input id="maxWidth" type="text" value="450" oninput="renderAll()" />
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3. 이미지 정리</h2>
+        <div class="stats">
+          <div class="stat"><strong id="allCount">0</strong><span>전체</span></div>
+          <div class="stat"><strong id="singleCount">0</strong><span>단색</span></div>
+          <div class="stat"><strong id="spotCount">0</strong><span>별색</span></div>
+          <div class="stat"><strong id="bothCount">0</strong><span>공통</span></div>
+        </div>
+
+        <div class="row" style="margin-bottom:12px;">
+          <button class="btn blue" onclick="setAllType('single')">전체 단색</button>
+          <button class="btn green" onclick="setAllType('spot')">전체 별색</button>
+          <button class="btn purple" onclick="setAllType('both')">전체 공통</button>
+          <button class="btn red" onclick="setAllType('none')">전체 제외</button>
+        </div>
+
+        <div id="imageList" class="imageList"></div>
+      </section>
+
+      <section class="card">
+        <h2>4. 미리보기 / 코드 복사</h2>
+
+        <div class="caseTabs">
+          <button id="caseSingle" class="caseTab active-single" onclick="setOutputCase('single')">단색 코드</button>
+          <button id="caseSpot" class="caseTab" onclick="setOutputCase('spot')">별색 코드</button>
+          <button id="caseBoth" class="caseTab" onclick="setOutputCase('both')">단색+별색 코드</button>
+        </div>
+
+        <div class="previewShell">
+          <div class="previewTop">
+            <span id="previewLabel">단색 전용 미리보기</span>
+            <button class="btn small" onclick="copyCurrentHtml()">현재 코드 복사</button>
+          </div>
+          <div id="preview"></div>
+        </div>
+
+        <div class="field" style="margin-top:14px;">
+          <label id="codeLabel">단색 전용 HTML 코드</label>
+          <textarea id="outputCode" class="code" readonly></textarea>
+        </div>
+
+        <div class="row">
+          <button class="btn blue" onclick="copyCaseHtml('single')">단색 코드 복사</button>
+          <button class="btn green" onclick="copyCaseHtml('spot')">별색 코드 복사</button>
+          <button class="btn purple" onclick="copyCaseHtml('both')">단색+별색 코드 복사</button>
+          <button class="btn" onclick="downloadCurrentHtml()">현재 HTML 다운로드</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">완료</div>
+
+  <script>
+    const state = {
+      images: [],
+      outputCase: 'single'
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function uid() {
+      return 'img_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function toast(message) {
+      const el = $('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1600);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, '&#39;');
+    }
+
+    function cleanUrl(url) {
+      return String(url || '').trim().replace(/^['"]|['"]$/g, '');
+    }
+
+    function removeVer(url) {
+      try {
+        const u = new URL(url);
+        u.searchParams.delete('ver');
+        const qs = u.searchParams.toString();
+        return u.origin + u.pathname + (qs ? '?' + qs : '');
+      } catch (e) {
+        return url.replace(/[?&]ver=\d+/g, '');
+      }
+    }
+
+    function getImageUrlsFromHtml(html) {
+      const result = [];
+      const raw = String(html || '');
+      let match;
+
+      const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+      while ((match = imgRegex.exec(raw)) !== null) result.push(match[1]);
+
+      const urlRegex = /(https?:\/\/[^\s"'<>]+?\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s"'<>]*)?)/gi;
+      while ((match = urlRegex.exec(raw)) !== null) result.push(match[1]);
+
+      return [...new Set(result.map(cleanUrl).filter(Boolean))];
+    }
+
+    function extractFromPasteBox() {
+      const box = $('pasteBox');
+      const html = box.innerHTML;
+      const text = box.innerText;
+      const urls = [...new Set([...getImageUrlsFromHtml(html), ...getImageUrlsFromHtml(text)])];
+
+      if (!urls.length) {
+        toast('추출된 이미지가 없습니다');
+        return;
+      }
+
+      const existing = new Set(state.images.map(v => removeVer(v.url)));
+      let added = 0;
+
+      urls.forEach(url => {
+        const baseUrl = removeVer(url);
+        if (existing.has(baseUrl)) return;
+        existing.add(baseUrl);
+        state.images.push({ id: uid(), url: baseUrl, type: 'both' });
+        added++;
+      });
+
+      renderAll();
+      toast(added ? `${added}개 이미지 추출됨` : '이미 추가된 이미지입니다');
+    }
+
+    function clearPasteBox() {
+      $('pasteBox').innerHTML = '';
+      $('pasteBox').classList.add('empty');
+    }
+
+    $('pasteBox').addEventListener('input', () => {
+      $('pasteBox').classList.toggle('empty', !$('pasteBox').innerText.trim() && !$('pasteBox').querySelector('img'));
+    });
+
+    $('pasteBox').addEventListener('paste', () => {
+      setTimeout(() => {
+        $('pasteBox').classList.remove('empty');
+        extractFromPasteBox();
+      }, 100);
+    });
+
+    function setImageType(id, type) {
+      const item = state.images.find(v => v.id === id);
+      if (!item) return;
+      item.type = type;
+      renderAll();
+    }
+
+    function setAllType(type) {
+      state.images.forEach(item => item.type = type);
+      renderAll();
+    }
+
+    function removeImage(id) {
+      state.images = state.images.filter(v => v.id !== id);
+      renderAll();
+    }
+
+    function moveImage(id, direction) {
+      const index = state.images.findIndex(v => v.id === id);
+      const next = index + direction;
+      if (index < 0 || next < 0 || next >= state.images.length) return;
+      [state.images[index], state.images[next]] = [state.images[next], state.images[index]];
+      renderAll();
+    }
+
+    function renderImageList() {
+      const list = $('imageList');
+      list.innerHTML = '';
+
+      if (!state.images.length) {
+        list.innerHTML = '<div class="emptyList">붙여넣기 박스에 기존 제작가이드를 붙여넣으면 이미지가 여기에 표시됩니다.</div>';
+        return;
+      }
+
+      state.images.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.draggable = true;
+        div.dataset.id = item.id;
+        div.innerHTML = `
+          <img class="thumb" src="${escapeAttr(item.url)}" alt="">
+          <div>
+            <div class="url">${index + 1}. ${escapeHtml(item.url)}</div>
+            <div class="choice">
+              <button class="chip single ${item.type === 'single' ? 'active' : ''}" onclick="setImageType('${item.id}', 'single')">단색</button>
+              <button class="chip spot ${item.type === 'spot' ? 'active' : ''}" onclick="setImageType('${item.id}', 'spot')">별색</button>
+              <button class="chip both ${item.type === 'both' ? 'active' : ''}" onclick="setImageType('${item.id}', 'both')">공통</button>
+              <button class="chip none ${item.type === 'none' ? 'active' : ''}" onclick="setImageType('${item.id}', 'none')">제외</button>
+            </div>
+            <div class="tools">
+              <button class="btn small" onclick="moveImage('${item.id}', -1)">위</button>
+              <button class="btn small" onclick="moveImage('${item.id}', 1)">아래</button>
+              <button class="btn small red" onclick="removeImage('${item.id}')">삭제</button>
+            </div>
+          </div>`;
+        list.appendChild(div);
+      });
+    }
+
+    function getImages(type) {
+      return state.images.filter(item => item.type === type || item.type === 'both');
+    }
+
+    function withVersion(url, index) {
+      if (url.startsWith('blob:')) return url;
+      return url.includes('?') ? `${url}&ver=${index + 1}` : `${url}?ver=${index + 1}`;
+    }
+
+    function makeColumnHtml(type) {
+      const productName = escapeHtml($('productName').value.trim() || '제품명');
+      const tooltipUrl = type === 'single' ? $('singleTooltip').value.trim() : $('spotTooltip').value.trim();
+      const tooltipAlt = type === 'single' ? '단색 제작가이드' : '별색 제작가이드';
+      const borderColor = type === 'single' ? '#4DA3FF' : '#24CF7F';
+      const maxWidth = parseInt($('maxWidth').value, 10) || 450;
+      const images = getImages(type);
+
+      const imageHtml = images.map((item, index) => `
+                <div style="margin-top:30px; text-align:center;">
+                    <img src="${escapeAttr(withVersion(item.url, index))}"
+                        style="width:100%; max-width:${maxWidth}px;"
+                        class="e-rte-image e-imginline">
+                </div>`).join('\n');
+
+      return `
+    <div style="flex:1; text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <div style="border:4px solid ${borderColor}; border-radius:12px; width:100%; padding-bottom:30px; position:relative;">
+
+            <img src="${escapeAttr(tooltipUrl)}"
+                alt="${tooltipAlt}"
+                style="position:absolute; top:15px; left:50%; transform:translateX(-50%);
+                width:130px; height:auto; z-index:10;">
+
+            <h2 style="margin-top:75px; margin-bottom:30px;
+                font-size:20px; font-weight:600;">${productName}</h2>
+${imageHtml}
+        </div>
+    </div>`;
+    }
+
+    function makeBodyByCase(caseType) {
+      if (caseType === 'single') {
+        return getImages('single').length ? makeColumnHtml('single') : '';
+      }
+      if (caseType === 'spot') {
+        return getImages('spot').length ? makeColumnHtml('spot') : '';
+      }
+
+      const hasSingle = getImages('single').length > 0;
+      const hasSpot = getImages('spot').length > 0;
+      const columns = [];
+      if (hasSingle) columns.push(makeColumnHtml('single'));
+      if (hasSpot) columns.push(makeColumnHtml('spot'));
+
+      const divider = hasSingle && hasSpot ? `
+            <div style="position:absolute; top:0; left:50%; transform:translateX(-50%);
+                width:1px; height:100%; background:#dcdcdc;"></div>` : '';
+
+      return columns.join('\n') + divider;
+    }
+
+    function makeGuideHtml(caseType) {
+      const productName = escapeHtml($('productName').value.trim() || '제작가이드');
+      const body = makeBodyByCase(caseType);
+
+      return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>${productName}</title>
+</head>
+<body>
+
+<div style="width:100%; max-width:1420px; margin:0 auto; padding:0 16px;
+        display:flex; justify-content:space-between; gap:30px; position:relative;">
+${body}
+</div>
+
+</body>
+</html>`;
+    }
+
+    function setOutputCase(caseType) {
+      state.outputCase = caseType;
+      renderAll();
+    }
+
+    function updateCaseTabs() {
+      $('caseSingle').className = state.outputCase === 'single' ? 'caseTab active-single' : 'caseTab';
+      $('caseSpot').className = state.outputCase === 'spot' ? 'caseTab active-spot' : 'caseTab';
+      $('caseBoth').className = state.outputCase === 'both' ? 'caseTab active-both' : 'caseTab';
+
+      const labelMap = {
+        single: ['단색 전용 미리보기', '단색 전용 HTML 코드'],
+        spot: ['별색 전용 미리보기', '별색 전용 HTML 코드'],
+        both: ['단색+별색 비교형 미리보기', '단색+별색 비교형 HTML 코드']
+      };
+      $('previewLabel').textContent = labelMap[state.outputCase][0];
+      $('codeLabel').textContent = labelMap[state.outputCase][1];
+    }
+
+    function renderAll() {
+      renderImageList();
+
+      const singleLen = getImages('single').length;
+      const spotLen = getImages('spot').length;
+      const bothLen = state.images.filter(item => item.type === 'both').length;
+
+      $('allCount').textContent = state.images.length;
+      $('singleCount').textContent = singleLen;
+      $('spotCount').textContent = spotLen;
+      $('bothCount').textContent = bothLen;
+
+      updateCaseTabs();
+
+      const html = makeGuideHtml(state.outputCase);
+      $('outputCode').value = html;
+      $('preview').innerHTML = html.replace(/<!DOCTYPE html>[\s\S]*?<body>/i, '').replace(/<\/body>[\s\S]*?<\/html>/i, '');
+    }
+
+    async function copyText(text, message) {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast(message);
+      } catch (e) {
+        $('outputCode').value = text;
+        $('outputCode').select();
+        document.execCommand('copy');
+        toast(message);
+      }
+    }
+
+    function copyCurrentHtml() {
+      copyText(makeGuideHtml(state.outputCase), '현재 HTML 코드가 복사되었습니다');
+    }
+
+    function copyCaseHtml(caseType) {
+      copyText(makeGuideHtml(caseType), `${caseType === 'single' ? '단색' : caseType === 'spot' ? '별색' : '단색+별색'} 코드가 복사되었습니다`);
+    }
+
+    function downloadCurrentHtml() {
+      const nameMap = { single: '단색', spot: '별색', both: '단색_별색' };
+      const blob = new Blob([makeGuideHtml(state.outputCase)], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${($('productName').value || 'guide').replace(/[\\/:*?"<>|]/g, '_')}_${nameMap[state.outputCase]}.html`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function downloadJson() {
+      const data = {
+        productName: $('productName').value,
+        singleTooltip: $('singleTooltip').value,
+        spotTooltip: $('spotTooltip').value,
+        maxWidth: $('maxWidth').value,
+        images: state.images.map(v => ({ url: v.url, type: v.type }))
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${(data.productName || 'guide-work').replace(/[\\/:*?"<>|]/g, '_')}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    $('jsonInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        $('productName').value = data.productName || '';
+        $('singleTooltip').value = data.singleTooltip || $('singleTooltip').value;
+        $('spotTooltip').value = data.spotTooltip || $('spotTooltip').value;
+        $('maxWidth').value = data.maxWidth || '450';
+        state.images = (data.images || []).map(v => ({ id: uid(), url: v.url, type: v.type || 'both' }));
+        renderAll();
+        toast('작업을 불러왔습니다');
+      } catch (err) {
+        toast('JSON 파일을 읽지 못했습니다');
+      }
+      e.target.value = '';
+    });
+
+    function resetAll() {
+      if (!confirm('전체 이미지를 초기화할까요?')) return;
+      state.images = [];
+      clearPasteBox();
+      renderAll();
+    }
+
+    document.addEventListener('dragstart', e => {
+      const item = e.target.closest('.item');
+      if (!item) return;
+      item.classList.add('dragging');
+    });
+
+    document.addEventListener('dragend', e => {
+      const item = e.target.closest('.item');
+      if (item) item.classList.remove('dragging');
+    });
+
+    document.addEventListener('dragover', e => {
+      const list = e.target.closest('.imageList');
+      if (!list) return;
+      e.preventDefault();
+      const dragging = document.querySelector('.item.dragging');
+      if (!dragging) return;
+      const after = getDragAfterElement(list, e.clientY);
+      if (after == null) list.appendChild(dragging);
+      else list.insertBefore(dragging, after);
+    });
+
+    document.addEventListener('drop', e => {
+      const list = e.target.closest('.imageList');
+      if (!list) return;
+      e.preventDefault();
+      syncOrderFromDom();
+      renderAll();
+    });
+
+    function getDragAfterElement(container, y) {
+      const items = [...container.querySelectorAll('.item:not(.dragging)')];
+      return items.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function syncOrderFromDom() {
+      const ids = [...$('imageList').querySelectorAll('.item')].map(el => el.dataset.id);
+      const map = new Map(state.images.map(item => [item.id, item]));
+      state.images = ids.map(id => map.get(id)).filter(Boolean);
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
