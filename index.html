@@ -5,98 +5,404 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>제작가이드 HTML 빌더</title>
   <style>
+    :root{
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --line:#e5eaf2;
+      --line-dark:#d4dbe7;
+      --text:#101827;
+      --muted:#6b7280;
+      --blue:#4da3ff;
+      --blue-dark:#1665b8;
+      --green:#24cf7f;
+      --green-dark:#087a49;
+      --purple:#7c3aed;
+      --purple-soft:#f5f3ff;
+      --red:#ef4444;
+      --shadow:0 14px 42px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+
     *{box-sizing:border-box}
-    body{margin:0;font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}
-    .app{max-width:1580px;margin:0 auto;padding:24px}
-    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
-    h1{margin:0 0 6px;font-size:26px;letter-spacing:-.03em}
-    p{margin:0;color:#6b7280;font-size:14px}
-    .actions,.row{display:flex;gap:8px;flex-wrap:wrap}
-    .grid{display:grid;grid-template-columns:390px minmax(500px,1fr) 560px;gap:16px;align-items:start}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;box-shadow:0 8px 28px rgba(15,23,42,.05)}
-    .card h2{margin:0 0 14px;font-size:17px;letter-spacing:-.02em}
-    .field{margin-bottom:14px}
-    .field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800;color:#374151}
-    input,textarea{width:100%;border:1px solid #d9dee7;border-radius:10px;padding:11px 12px;font-size:14px;outline:none;background:#fff;font-family:inherit}
-    textarea{min-height:150px;resize:vertical;line-height:1.5}
-    input:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(147,197,253,.25)}
-    .btn{border:1px solid #d9dee7;background:#fff;color:#111827;border-radius:10px;padding:10px 13px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08)}
+    body{
+      margin:0;
+      font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(77,163,255,.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(124,58,237,.12), transparent 30%),
+        var(--bg);
+      color:var(--text);
+    }
+
+    button,input,textarea{font-family:inherit}
+    .app{max-width:1680px;margin:0 auto;padding:24px}
+
+    .hero{
+      background:linear-gradient(135deg,#101827 0%,#1f2937 58%,#243b65 100%);
+      color:#fff;
+      border-radius:24px;
+      padding:24px 26px;
+      margin-bottom:18px;
+      box-shadow:0 18px 55px rgba(15,23,42,.22);
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-end;
+    }
+    .hero h1{margin:0 0 8px;font-size:28px;letter-spacing:-.04em}
+    .hero p{margin:0;color:#cbd5e1;font-size:14px;line-height:1.5}
+    .heroActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+    .settings{
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(229,234,242,.9);
+      backdrop-filter:blur(10px);
+      border-radius:22px;
+      padding:16px;
+      margin-bottom:18px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:12px;
+      z-index:20;
+    }
+    .settingsHead{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .settingsHead strong{font-size:16px;letter-spacing:-.02em}
+    .settingsHead span{font-size:12px;color:var(--muted)}
+    .settingsGrid{
+      display:grid;
+      grid-template-columns:1.4fr 1fr 1fr 150px;
+      gap:10px;
+    }
+
+    .field label{
+      display:block;
+      font-size:12px;
+      color:#475569;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    input,textarea{
+      width:100%;
+      border:1px solid var(--line-dark);
+      border-radius:13px;
+      padding:12px 13px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+      color:var(--text);
+    }
+    input:focus,textarea:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(147,197,253,.22);
+    }
+
+    .mainGrid{
+      display:grid;
+      grid-template-columns:420px minmax(520px,1fr) 560px;
+      gap:18px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .cardTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .cardTitle h2{margin:0;font-size:18px;letter-spacing:-.03em}
+    .badge{
+      padding:6px 9px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      background:#f1f5f9;
+      color:#475569;
+      white-space:nowrap;
+    }
+
+    .btn{
+      border:1px solid var(--line-dark);
+      background:#fff;
+      color:#111827;
+      border-radius:12px;
+      padding:10px 13px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
     .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .btn.blue{background:#4da3ff;color:#fff;border-color:#4da3ff}
-    .btn.green{background:#24cf7f;color:#fff;border-color:#24cf7f}
-    .btn.purple{background:#7c3aed;color:#fff;border-color:#7c3aed}
-    .btn.red{color:#ef4444;border-color:#fecaca}
-    .btn.small{padding:7px 9px;font-size:12px;border-radius:8px}
-    .hint{margin-top:7px;font-size:12px;color:#6b7280;line-height:1.45}
-    .stepBox{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:12px;font-size:13px;color:#374151;line-height:1.6;margin-bottom:14px}
-    .stepBox strong{color:#111827}
-    .pasteBox{min-height:210px;border:2px dashed #cbd5e1;border-radius:16px;background:#f8fafc;padding:16px;outline:none;transition:.15s;color:#475569;overflow:auto}
-    .pasteBox:focus{border-color:#4da3ff;background:#eef6ff}
-    .pasteBox.empty::before{content:"여기에 기존 제작가이드 페이지를 복사해서 붙여넣기\A\A1) 기존 제작가이드 페이지 열기\A2) 본문 영역 또는 전체 선택 후 Ctrl+C\A3) 이 박스 클릭 후 Ctrl+V\A\A이미지 URL이 자동 추출됩니다.";white-space:pre-line;color:#64748b;font-size:14px;line-height:1.55}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-    .stat{border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fafafa;text-align:center}
-    .stat strong{display:block;font-size:18px;margin-bottom:2px}
-    .stat span{font-size:12px;color:#6b7280}
-    .imageList{display:flex;flex-direction:column;gap:10px;min-height:160px}
-    .emptyList{border:1px dashed #d1d5db;border-radius:12px;padding:28px;color:#6b7280;text-align:center;font-size:13px;background:#fafafa}
-    .item{display:grid;grid-template-columns:86px 1fr;gap:12px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fff;cursor:grab}
+    .btn.blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .btn.green{background:var(--green);color:#fff;border-color:var(--green)}
+    .btn.purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+    .btn.red{color:var(--red);border-color:#fecaca;background:#fff}
+    .btn.small{padding:7px 9px;border-radius:9px;font-size:12px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+
+    .guideSteps{
+      display:grid;
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .guideStep{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      background:#f8fafc;
+      border:1px solid #e5eaf2;
+      border-radius:14px;
+      padding:11px;
+      font-size:13px;
+      color:#475569;
+      line-height:1.45;
+    }
+    .num{
+      width:22px;height:22px;border-radius:999px;
+      display:grid;place-items:center;
+      background:#111827;color:#fff;
+      font-size:12px;font-weight:900;flex:0 0 22px;
+    }
+
+    .pasteBox{
+      min-height:260px;
+      border:2px dashed #cbd5e1;
+      border-radius:18px;
+      background:
+        linear-gradient(180deg,#f8fafc,#ffffff);
+      padding:18px;
+      outline:none;
+      transition:.15s ease;
+      color:#475569;
+      overflow:auto;
+    }
+    .pasteBox:focus{
+      border-color:var(--blue);
+      background:#eef6ff;
+      box-shadow:0 0 0 4px rgba(77,163,255,.13);
+    }
+    .pasteBox.empty::before{
+      content:"여기에 기존 제작가이드 이미지를 붙여넣기\A\A① 기존 제작가이드 페이지에서 이미지 영역 복사\A② 이 박스 클릭 후 Ctrl + V\A③ 이미지가 자동으로 추출됩니다\A\A※ 페이지 전체를 복사해도 이미지 URL만 골라냅니다.";
+      white-space:pre-line;
+      color:#64748b;
+      font-size:14px;
+      line-height:1.6;
+    }
+    .hint{margin-top:8px;font-size:12px;color:var(--muted);line-height:1.45}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-bottom:14px;
+    }
+    .stat{
+      border:1px solid var(--line);
+      border-radius:15px;
+      padding:11px 8px;
+      background:#f8fafc;
+      text-align:center;
+    }
+    .stat strong{display:block;font-size:20px;margin-bottom:2px;letter-spacing:-.02em}
+    .stat span{font-size:12px;color:var(--muted);font-weight:700}
+
+    .bulkBox{
+      padding:12px;
+      background:#fafafa;
+      border:1px solid var(--line);
+      border-radius:15px;
+      margin-bottom:14px;
+    }
+    .bulkBox .label{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:8px}
+
+    .imageList{display:flex;flex-direction:column;gap:10px;min-height:180px}
+    .emptyList{
+      border:1px dashed #d1d5db;
+      border-radius:16px;
+      padding:36px 20px;
+      color:var(--muted);
+      text-align:center;
+      font-size:13px;
+      background:#fafafa;
+      line-height:1.5;
+    }
+    .item{
+      display:grid;
+      grid-template-columns:92px 1fr;
+      gap:13px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:11px;
+      background:#fff;
+      cursor:grab;
+      transition:.12s ease;
+    }
+    .item:hover{border-color:#c7d2e4;box-shadow:0 8px 20px rgba(15,23,42,.06)}
     .item.dragging{opacity:.45}
-    .thumb{width:86px;height:86px;object-fit:cover;border-radius:10px;border:1px solid #eef2f7;background:#f8fafc}
-    .url{font-size:12px;color:#334155;word-break:break-all;line-height:1.35;max-height:48px;overflow:hidden}
+    .thumb{
+      width:92px;
+      height:92px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid #eef2f7;
+      background:#f8fafc;
+    }
+    .url{
+      font-size:12px;
+      color:#334155;
+      word-break:break-all;
+      line-height:1.35;
+      max-height:48px;
+      overflow:hidden;
+    }
     .choice,.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-    .chip{border:1px solid #d9dee7;background:#fff;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer}
-    .chip.single.active{background:#eef6ff;border-color:#4da3ff;color:#1665b8}
-    .chip.spot.active{background:#ecfdf4;border-color:#24cf7f;color:#087a49}
-    .chip.both.active{background:#f5f3ff;border-color:#a78bfa;color:#6d28d9}
+    .chip{
+      border:1px solid var(--line-dark);
+      background:#fff;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.12s ease;
+    }
+    .chip.single.active{background:#eef6ff;border-color:var(--blue);color:var(--blue-dark)}
+    .chip.spot.active{background:#ecfdf4;border-color:var(--green);color:var(--green-dark)}
+    .chip.both.active{background:var(--purple-soft);border-color:#a78bfa;color:#6d28d9}
     .chip.none.active{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
-    .caseTabs{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin-bottom:12px}
-    .caseTab{border:1px solid #d9dee7;border-radius:10px;background:#fff;padding:11px;font-weight:900;cursor:pointer}
-    .caseTab.active-single{background:#eef6ff;border-color:#4da3ff;color:#1665b8}
-    .caseTab.active-spot{background:#ecfdf4;border-color:#24cf7f;color:#087a49}
-    .caseTab.active-both{background:#f5f3ff;border-color:#a78bfa;color:#6d28d9}
-    .previewShell{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;max-height:610px;overflow-y:auto;overflow-x:hidden}
-    .previewTop{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #e5e7eb;background:#f8fafc;position:sticky;top:0;z-index:5}
-    .previewTop span{font-size:13px;color:#6b7280}
-    #preview{padding:24px 12px;min-width:0;width:100%;overflow:hidden}
-    .code{min-height:280px;font-family:Consolas,Monaco,monospace;font-size:12px;white-space:pre}
-    .toast{position:fixed;right:24px;bottom:24px;background:#111827;color:#fff;padding:12px 15px;border-radius:12px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transform:translateY(10px);transition:.18s;z-index:99}
+
+    .caseTabs{
+      display:grid;
+      grid-template-columns:1fr 1fr 1.2fr;
+      gap:8px;
+      margin-bottom:12px;
+      padding:6px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:16px;
+    }
+    .caseTab{
+      border:1px solid transparent;
+      border-radius:12px;
+      background:transparent;
+      padding:11px 9px;
+      font-weight:900;
+      cursor:pointer;
+      color:#475569;
+    }
+    .caseTab.active-single{background:#eef6ff;border-color:var(--blue);color:var(--blue-dark)}
+    .caseTab.active-spot{background:#ecfdf4;border-color:var(--green);color:var(--green-dark)}
+    .caseTab.active-both{background:var(--purple-soft);border-color:#a78bfa;color:#6d28d9}
+
+    .previewShell{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      max-height:620px;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+    .previewTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:11px 13px;
+      border-bottom:1px solid var(--line);
+      background:#f8fafc;
+      position:sticky;
+      top:0;
+      z-index:5;
+    }
+    .previewTop span{font-size:13px;color:#64748b;font-weight:800}
+    #preview{
+      padding:24px 12px;
+      min-width:0;
+      width:100%;
+      overflow:hidden;
+    }
+    .code{
+      min-height:280px;
+      font-family:Consolas,Monaco,monospace;
+      font-size:12px;
+      white-space:pre;
+    }
+
+    .toast{
+      position:fixed;
+      right:24px;
+      bottom:24px;
+      background:#111827;
+      color:#fff;
+      padding:12px 15px;
+      border-radius:14px;
+      font-size:13px;
+      font-weight:900;
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(10px);
+      transition:.18s ease;
+      z-index:99;
+    }
     .toast.show{opacity:1;transform:translateY(0)}
-    @media(max-width:1280px){.grid{grid-template-columns:1fr}#preview{min-width:0}.top{display:block}.actions{justify-content:flex-start;margin-top:12px}}
+
+    @media(max-width:1380px){
+      .mainGrid{grid-template-columns:1fr}
+      .settings{position:static}
+      .settingsGrid{grid-template-columns:1fr 1fr}
+      #preview{min-width:0}
+    }
+    @media(max-width:780px){
+      .app{padding:14px}
+      .hero{display:block}
+      .heroActions{justify-content:flex-start;margin-top:14px}
+      .settingsGrid{grid-template-columns:1fr}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .caseTabs{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="top">
+    <header class="hero">
       <div>
         <h1>제작가이드 HTML 빌더</h1>
         <p>기존 제작가이드 복사 → 이미지 자동 추출 → 단색/별색/공통 지정 → 3가지 코드 개별 복사</p>
       </div>
-      <div class="actions">
+      <div class="heroActions">
         <button class="btn" onclick="downloadJson()">작업 저장(JSON)</button>
         <label class="btn" for="jsonInput">작업 불러오기</label>
         <input id="jsonInput" type="file" accept="application/json" hidden />
         <button class="btn red" onclick="resetAll()">전체 초기화</button>
       </div>
-    </div>
+    </header>
 
-    <div class="grid">
-      <section class="card">
-        <h2>1. 붙여넣기</h2>
-        <div class="stepBox">
-          <strong>사용 순서</strong><br>
-          기존 제작가이드 페이지에서 이미지 영역 복사 → 아래 박스 클릭 → Ctrl+V → 이미지 자동 추출
+    <section class="settings">
+      <div class="settingsHead">
+        <div>
+          <strong>기본 설정</strong>
+          <span>제품명과 툴팁 이미지는 생성되는 HTML 상단에 반영됩니다.</span>
         </div>
+        <span class="badge">상단 고정 설정</span>
+      </div>
 
-        <div id="pasteBox" class="pasteBox empty" contenteditable="true"></div>
-        <div class="hint">페이지 전체를 복사해도 되고, 이미지 영역만 복사해도 됩니다.</div>
-
-        <div class="row" style="margin-top:12px;">
-          <button class="btn primary" onclick="extractFromPasteBox()">붙여넣은 내용에서 이미지 추출</button>
-          <button class="btn" onclick="clearPasteBox()">붙여넣기 박스 비우기</button>
-        </div>
-
-        <h2 style="margin-top:24px;">2. 기본 설정</h2>
+      <div class="settingsGrid">
         <div class="field">
           <label>제품명</label>
           <input id="productName" type="text" value="자유형 투명아크릴 하트체인(라미)" oninput="renderAll()" />
@@ -113,10 +419,37 @@
           <label>이미지 최대 너비(px)</label>
           <input id="maxWidth" type="text" value="450" oninput="renderAll()" />
         </div>
+      </div>
+    </section>
+
+    <main class="mainGrid">
+      <section class="card">
+        <div class="cardTitle">
+          <h2>1. 붙여넣기</h2>
+          <span class="badge">Ctrl + V</span>
+        </div>
+
+        <div class="guideSteps">
+          <div class="guideStep"><span class="num">1</span><div>기존 제작가이드 페이지에서 이미지 영역 또는 전체 페이지를 복사합니다.</div></div>
+          <div class="guideStep"><span class="num">2</span><div>아래 박스 클릭 후 <b>Ctrl + V</b>로 붙여넣습니다.</div></div>
+          <div class="guideStep"><span class="num">3</span><div>이미지 URL만 자동 추출되어 오른쪽 목록에 표시됩니다.</div></div>
+        </div>
+
+        <div id="pasteBox" class="pasteBox empty" contenteditable="true"></div>
+        <div class="hint">페이지 전체를 복사해도 이미지 URL만 골라냅니다. 이미 추가된 이미지는 중복 추가되지 않습니다.</div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn primary" onclick="extractFromPasteBox()">이미지 추출</button>
+          <button class="btn" onclick="clearPasteBox()">붙여넣기 박스 비우기</button>
+        </div>
       </section>
 
       <section class="card">
-        <h2>3. 이미지 정리</h2>
+        <div class="cardTitle">
+          <h2>2. 이미지 정리</h2>
+          <span class="badge">드래그 정렬</span>
+        </div>
+
         <div class="stats">
           <div class="stat"><strong id="allCount">0</strong><span>전체</span></div>
           <div class="stat"><strong id="singleCount">0</strong><span>단색</span></div>
@@ -124,18 +457,24 @@
           <div class="stat"><strong id="bothCount">0</strong><span>공통</span></div>
         </div>
 
-        <div class="row" style="margin-bottom:12px;">
-          <button class="btn blue" onclick="setAllType('single')">전체 단색</button>
-          <button class="btn green" onclick="setAllType('spot')">전체 별색</button>
-          <button class="btn purple" onclick="setAllType('both')">전체 공통</button>
-          <button class="btn red" onclick="setAllType('none')">전체 제외</button>
+        <div class="bulkBox">
+          <div class="label">전체 적용</div>
+          <div class="row">
+            <button class="btn blue" onclick="setAllType('single')">전체 단색</button>
+            <button class="btn green" onclick="setAllType('spot')">전체 별색</button>
+            <button class="btn purple" onclick="setAllType('both')">전체 공통</button>
+            <button class="btn red" onclick="setAllType('none')">전체 제외</button>
+          </div>
         </div>
 
         <div id="imageList" class="imageList"></div>
       </section>
 
       <section class="card">
-        <h2>4. 미리보기 / 코드 복사</h2>
+        <div class="cardTitle">
+          <h2>3. 미리보기 / 코드</h2>
+          <span class="badge">3가지 출력</span>
+        </div>
 
         <div class="caseTabs">
           <button id="caseSingle" class="caseTab active-single" onclick="setOutputCase('single')">단색 코드</button>
@@ -163,7 +502,7 @@
           <button class="btn" onclick="downloadCurrentHtml()">현재 HTML 다운로드</button>
         </div>
       </section>
-    </div>
+    </main>
   </div>
 
   <div id="toast" class="toast">완료</div>
@@ -296,7 +635,7 @@
       list.innerHTML = '';
 
       if (!state.images.length) {
-        list.innerHTML = '<div class="emptyList">붙여넣기 박스에 기존 제작가이드를 붙여넣으면 이미지가 여기에 표시됩니다.</div>';
+        list.innerHTML = '<div class="emptyList">붙여넣기 박스에 기존 제작가이드를 붙여넣으면 이미지가 여기에 표시됩니다.<br>추출 후 단색 / 별색 / 공통 / 제외를 선택하세요.</div>';
         return;
       }
 
