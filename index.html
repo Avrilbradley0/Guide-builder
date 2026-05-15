@@ -674,7 +674,7 @@
       const tooltipUrl = type === 'single' ? $('singleTooltip').value.trim() : $('spotTooltip').value.trim();
       const tooltipAlt = type === 'single' ? '단색 제작가이드' : '별색 제작가이드';
       const borderColor = type === 'single' ? '#4DA3FF' : '#24CF7F';
-      const maxWidth = state.outputCase === 'both' ? 450 : 720;
+      const maxWidth = 450;
       const images = getImages(type);
 
       const imageHtml = images.map((item, index) => `
