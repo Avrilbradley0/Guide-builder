@@ -253,6 +253,8 @@
     }
     .item:hover{border-color:#c7d2e4;box-shadow:0 8px 20px rgba(15,23,42,.06)}
     .item.dragging{opacity:.45}
+    .fixedItem{background:#fbf7ff;border-color:#c4b5fd;cursor:default}
+    .fixedItem:hover{box-shadow:none;border-color:#c4b5fd}
     .thumb{
       width:92px;
       height:92px;
@@ -504,8 +506,12 @@
   <div id="toast" class="toast">완료</div>
 
   <script>
+    const FIXED_COMMON_IMAGE_URL = 'https://huskb2bstorage.blob.core.windows.net/shopicus/dev_1/guide/03_make/page/00_A.jpg';
+
     const state = {
-      images: [],
+      images: [
+        { id: 'fixed_common_notice', url: FIXED_COMMON_IMAGE_URL, type: 'both', fixed: true }
+      ],
       outputCase: 'single'
     };
 
@@ -577,7 +583,7 @@
         const baseUrl = removeVer(url);
         if (existing.has(baseUrl)) return;
         existing.add(baseUrl);
-        state.images.push({ id: uid(), url: baseUrl, type: 'both' });
+        state.images.push({ id: uid(), url: baseUrl, type: 'both', fixed: false });
         added++;
       });
 
@@ -603,18 +609,21 @@
 
     function setImageType(id, type) {
       const item = state.images.find(v => v.id === id);
-      if (!item) return;
+      if (!item || item.fixed) return;
       item.type = type;
       renderAll();
     }
 
     function setAllType(type) {
-      state.images.forEach(item => item.type = type);
+      state.images.forEach(item => {
+        if (item.fixed) return;
+        item.type = type;
+      });
       renderAll();
     }
 
     function removeImage(id) {
-      state.images = state.images.filter(v => v.id !== id);
+      state.images = state.images.filter(v => v.id !== id || v.fixed);
       renderAll();
     }
 
@@ -622,6 +631,7 @@
       const index = state.images.findIndex(v => v.id === id);
       const next = index + direction;
       if (index < 0 || next < 0 || next >= state.images.length) return;
+      if (state.images[index].fixed || state.images[next].fixed) return;
       [state.images[index], state.images[next]] = [state.images[next], state.images[index]];
       renderAll();
     }
@@ -637,24 +647,33 @@
 
       state.images.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = 'item';
-        div.draggable = true;
+        div.className = item.fixed ? 'item fixedItem' : 'item';
+        div.draggable = !item.fixed;
         div.dataset.id = item.id;
-        div.innerHTML = `
-          <img class="thumb" src="${escapeAttr(item.url)}" alt="">
-          <div>
-            <div class="url">${index + 1}. ${escapeHtml(item.url)}</div>
-            <div class="choice">
+
+        const typeButtons = item.fixed
+          ? `<div class="choice"><span class="chip both active">공통 고정</span></div>`
+          : `<div class="choice">
               <button class="chip single ${item.type === 'single' ? 'active' : ''}" onclick="setImageType('${item.id}', 'single')">단색</button>
               <button class="chip spot ${item.type === 'spot' ? 'active' : ''}" onclick="setImageType('${item.id}', 'spot')">별색</button>
               <button class="chip both ${item.type === 'both' ? 'active' : ''}" onclick="setImageType('${item.id}', 'both')">공통</button>
               <button class="chip none ${item.type === 'none' ? 'active' : ''}" onclick="setImageType('${item.id}', 'none')">제외</button>
-            </div>
-            <div class="tools">
+            </div>`;
+
+        const toolButtons = item.fixed
+          ? `<div class="tools"><span class="badge">항상 1번 고정</span></div>`
+          : `<div class="tools">
               <button class="btn small" onclick="moveImage('${item.id}', -1)">위</button>
               <button class="btn small" onclick="moveImage('${item.id}', 1)">아래</button>
               <button class="btn small red" onclick="removeImage('${item.id}')">삭제</button>
-            </div>
+            </div>`;
+
+        div.innerHTML = `
+          <img class="thumb" src="${escapeAttr(item.url)}" alt="">
+          <div>
+            <div class="url">${index + 1}. ${item.fixed ? '[고정 공통] ' : ''}${escapeHtml(item.url)}</div>
+            ${typeButtons}
+            ${toolButtons}
           </div>`;
         list.appendChild(div);
       });
@@ -817,7 +836,7 @@ ${body}
         productName: $('productName').value,
         singleTooltip: $('singleTooltip').value,
         spotTooltip: $('spotTooltip').value,
-        images: state.images.map(v => ({ url: v.url, type: v.type }))
+        images: state.images.filter(v => !v.fixed).map(v => ({ url: v.url, type: v.type }))
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
       const a = document.createElement('a');
@@ -835,7 +854,10 @@ ${body}
         $('productName').value = data.productName || '';
         $('singleTooltip').value = data.singleTooltip || $('singleTooltip').value;
         $('spotTooltip').value = data.spotTooltip || $('spotTooltip').value;
-        state.images = (data.images || []).map(v => ({ id: uid(), url: v.url, type: v.type || 'both' }));
+        state.images = [
+          { id: 'fixed_common_notice', url: FIXED_COMMON_IMAGE_URL, type: 'both', fixed: true },
+          ...(data.images || []).filter(v => removeVer(v.url) !== removeVer(FIXED_COMMON_IMAGE_URL)).map(v => ({ id: uid(), url: v.url, type: v.type || 'both', fixed: false }))
+        ];
         renderAll();
         toast('작업을 불러왔습니다');
       } catch (err) {
@@ -846,7 +868,9 @@ ${body}
 
     function resetAll() {
       if (!confirm('전체 이미지를 초기화할까요?')) return;
-      state.images = [];
+      state.images = [
+        { id: 'fixed_common_notice', url: FIXED_COMMON_IMAGE_URL, type: 'both', fixed: true }
+      ];
       clearPasteBox();
       renderAll();
     }
@@ -894,7 +918,10 @@ ${body}
     function syncOrderFromDom() {
       const ids = [...$('imageList').querySelectorAll('.item')].map(el => el.dataset.id);
       const map = new Map(state.images.map(item => [item.id, item]));
-      state.images = ids.map(id => map.get(id)).filter(Boolean);
+      const ordered = ids.map(id => map.get(id)).filter(Boolean);
+      const fixed = state.images.filter(item => item.fixed);
+      const normal = ordered.filter(item => !item.fixed);
+      state.images = [...fixed, ...normal];
     }
 
     renderAll();
