@@ -724,6 +724,8 @@ ${imageHtml}
     function makeGuideHtml(caseType) {
       const productName = escapeHtml($('productName').value.trim() || '제작가이드');
       const body = makeBodyByCase(caseType);
+      const wrapMaxWidth = caseType === 'both' ? 1420 : 720;
+      const wrapDisplay = caseType === 'both' ? 'flex' : 'block';
 
       return `<!DOCTYPE html>
 <html lang="ko">
@@ -733,8 +735,8 @@ ${imageHtml}
 </head>
 <body>
 
-<div style="width:100%; max-width:1420px; margin:0 auto; padding:0 16px;
-        display:flex; justify-content:space-between; gap:30px; position:relative;">
+<div style="width:100%; max-width:${wrapMaxWidth}px; margin:0 auto; padding:0 16px;
+        display:${wrapDisplay}; justify-content:space-between; gap:30px; position:relative;">
 ${body}
 </div>
 
