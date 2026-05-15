@@ -75,7 +75,7 @@
     .settingsHead span{font-size:12px;color:var(--muted)}
     .settingsGrid{
       display:grid;
-      grid-template-columns:1.4fr 1fr 1fr 150px;
+      grid-template-columns:1.4fr 1fr 1fr;
       gap:10px;
     }
 
@@ -414,10 +414,7 @@
           <label>툴팁 이미지 URL - 별색</label>
           <input id="spotTooltip" type="text" value="https://huskb2bstorage.blob.core.windows.net/shopicus/dev_1/guide/test/별색_툴팁.png" oninput="renderAll()" />
         </div>
-        <div class="field">
-          <label>이미지 최대 너비(px)</label>
-          <input id="maxWidth" type="text" value="450" oninput="renderAll()" />
-        </div>
+
       </div>
     </section>
 
@@ -677,7 +674,7 @@
       const tooltipUrl = type === 'single' ? $('singleTooltip').value.trim() : $('spotTooltip').value.trim();
       const tooltipAlt = type === 'single' ? '단색 제작가이드' : '별색 제작가이드';
       const borderColor = type === 'single' ? '#4DA3FF' : '#24CF7F';
-      const maxWidth = parseInt($('maxWidth').value, 10) || 450;
+      const maxWidth = state.outputCase === 'both' ? 450 : 720;
       const images = getImages(type);
 
       const imageHtml = images.map((item, index) => `
@@ -818,7 +815,6 @@ ${body}
         productName: $('productName').value,
         singleTooltip: $('singleTooltip').value,
         spotTooltip: $('spotTooltip').value,
-        maxWidth: $('maxWidth').value,
         images: state.images.map(v => ({ url: v.url, type: v.type }))
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
@@ -837,7 +833,6 @@ ${body}
         $('productName').value = data.productName || '';
         $('singleTooltip').value = data.singleTooltip || $('singleTooltip').value;
         $('spotTooltip').value = data.spotTooltip || $('spotTooltip').value;
-        $('maxWidth').value = data.maxWidth || '450';
         state.images = (data.images || []).map(v => ({ id: uid(), url: v.url, type: v.type || 'both' }));
         renderAll();
         toast('작업을 불러왔습니다');
